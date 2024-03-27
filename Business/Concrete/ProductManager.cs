@@ -1,10 +1,13 @@
 ﻿using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,64 +21,43 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
-        public void Add(Product product)
+        public IResult Add(Product product)
         {
-            if (string.IsNullOrEmpty(product.ProductTitle) || product.ProductTitle.Length > 200)
-            {
-                //hata mesajı verecek  -
-                Console.WriteLine("1");
-            }
-            if (product.CategoryId == null)
-            {
-                //hata mesajı verecek  -
-
-                Console.WriteLine("2");
-
-            }
-            if (product.StockQuantity <= 0)
-            {
-                //hata mesajı verecek  -
-
-                Console.WriteLine("3");
-
-            }
-            if (product.StockQuantity < //category.minstock)
-            {
-                //hata mesajı verecek  -
-
-                Console.WriteLine("4");
-            }
             _productDal.Add(product);
+            return new Result(true, Messages.Added);
         }
 
-        public void Delete(Product product)
+        public IResult Delete(Product product)
         {
             _productDal.Delete(product);
+            return new Result(true, Messages.Deleted);
+
         }
 
-        public List<Product> GetAll()
+        public IDataResult<List<Product>> GetAll()
         {
-            return _productDal.GetAll();
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(), Messages.ProductsListed);
         }
 
-        public List<Product> GetAllByCategoryID(int categoryId)
+        public IDataResult<List<Product>> GetAllByCategoryID(int categoryId)
         {
-            return _productDal.GetAll(p => p.Category.CategoryId == categoryId);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.Category.CategoryId == categoryId));
         }
 
-        public Product GetById(int productId)
+        public IDataResult<Product> GetById(int productId)
         {
-            return _productDal.Get(p => p.ProductId == productId);
+            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productId));
         }
 
-        public List<ProductDetailDto> GetProductDetails()
+        public IDataResult<List<ProductDetailDto>> GetProductDetails()
         {
-            return _productDal.GetProductDetails();
+            return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
-        public void Update(Product product)
+        public IResult Update(Product product)
         {
             _productDal.Update(product);
+            return new Result(true, Messages.Updated);
         }
     }
 }
