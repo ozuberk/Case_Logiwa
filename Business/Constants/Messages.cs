@@ -13,6 +13,6 @@ namespace Business.Constants
         public static string Updated = "Güncellendi";
         public static string ProductNameInvalid = "Ürün ismi geçersiz";
         public static string DataListed = "Data listelendi";
-        public static string DataEmpty = "Data bulunamadı";
+        public static string DataNotFound = "Data Bulunamadı";
     }
 }

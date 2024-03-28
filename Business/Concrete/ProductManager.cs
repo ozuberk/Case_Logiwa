@@ -25,14 +25,25 @@ namespace Business.Concrete
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            _productDal.Add(product);
-            return new Result(true, Messages.Added);
+            try
+            {
+                _productDal.Add(product);
+                return new SuccessResult(Messages.Added);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult(ex.Message);
+            }
         }
 
         public IResult Delete(Product product)
         {
             try
             {
+                if (product == null)
+                {
+                    return new ErrorResult(Messages.DataNotFound);
+                }
                 _productDal.Delete(product);
                 return new Result(true, Messages.Deleted);
             }
@@ -44,48 +55,82 @@ namespace Business.Concrete
 
         public IDataResult<List<Product>> GetAll()
         {
-            var result = _productDal.GetAll();
-            if (!result.Any())
+            try
             {
-                return new SuccessDataResult<List<Product>>(Messages.DataEmpty);
+                var result = _productDal.GetAll();
+                if (!result.Any())
+                {
+                    return new SuccessDataResult<List<Product>>(Messages.DataNotFound);
+                }
+                return new SuccessDataResult<List<Product>>(result, Messages.DataListed);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<Product>>(ex.Message);
             }
 
-            return new SuccessDataResult<List<Product>>(result, Messages.DataListed);
+
 
         }
 
         public IDataResult<Product> GetById(int productId)
         {
-            var result = _productDal.Get(p => p.ProductId == productId);
-
-            if (result == null)
+            try
             {
-                return new SuccessDataResult<Product>(Messages.DataEmpty);
+                var result = _productDal.Get(p => p.ProductId == productId);
+
+                if (result == null)
+                {
+                    return new SuccessDataResult<Product>(Messages.DataNotFound);
+                }
+                return new SuccessDataResult<Product>(result, Messages.DataListed);
             }
-            return new SuccessDataResult<Product>(result, Messages.DataListed);
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<Product>(ex.Message);
+            }
         }
 
         public IDataResult<Product> GetLiveProductById(int productId)
         {
-            var result = _productDal.Get(
+            try
+            {
+                var result = _productDal.Get(
                 p => p.ProductId == productId &&
                      p.CategoryId != null &&
                      p.StockQuantity > p.Category.MinStockQuantity
             );
 
-            if (result == null)
-            {
-                return new SuccessDataResult<Product>(Messages.DataEmpty);
-            }
+                if (result == null)
+                {
+                    return new SuccessDataResult<Product>(Messages.DataNotFound);
+                }
 
-            return new SuccessDataResult<Product>(result, Messages.DataListed);
+                return new SuccessDataResult<Product>(result, Messages.DataListed);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<Product>(ex.Message);
+            }
         }
 
         public IDataResult<List<ProductDetailDto>> GetLiveProducts(string? keyWord, int minStockVal = 0, int maxStockVal = 0)
         {
 
-            var result = _productDal.GetLiveProducts(keyWord, minStockVal, maxStockVal);
-            return new SuccessDataResult<List<ProductDetailDto>>(result);
+            try
+            {
+                var result = _productDal.GetLiveProducts(keyWord, minStockVal, maxStockVal);
+                if (result == null)
+                {
+                    return new ErrorDataResult<List<ProductDetailDto>>(Messages.DataNotFound);
+                }
+                return new SuccessDataResult<List<ProductDetailDto>>(result);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorDataResult<List<ProductDetailDto>>(ex.Message);
+            }
+
         }
 
 
@@ -94,9 +139,12 @@ namespace Business.Concrete
         {
             try
             {
-
+                if (product == null)
+                {
+                    return new ErrorResult(Messages.DataNotFound);
+                }
                 _productDal.Update(product);
-                return new Result(true, Messages.Updated);
+                return new SuccessResult(Messages.Updated);
             }
             catch (Exception ex)
             {
