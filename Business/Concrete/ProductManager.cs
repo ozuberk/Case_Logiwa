@@ -1,5 +1,7 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -20,7 +22,7 @@ namespace Business.Concrete
         {
             _productDal = productDal;
         }
-
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
             _productDal.Add(product);
@@ -29,35 +31,77 @@ namespace Business.Concrete
 
         public IResult Delete(Product product)
         {
-            _productDal.Delete(product);
-            return new Result(true, Messages.Deleted);
-
+            try
+            {
+                _productDal.Delete(product);
+                return new Result(true, Messages.Deleted);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult(ex.Message);
+            }
         }
 
         public IDataResult<List<Product>> GetAll()
         {
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(), Messages.ProductsListed);
-        }
+            var result = _productDal.GetAll();
+            if (!result.Any())
+            {
+                return new SuccessDataResult<List<Product>>(Messages.DataEmpty);
+            }
 
-        public IDataResult<List<Product>> GetAllByCategoryID(int categoryId)
-        {
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.Category.CategoryId == categoryId));
+            return new SuccessDataResult<List<Product>>(result, Messages.DataListed);
+
         }
 
         public IDataResult<Product> GetById(int productId)
         {
-            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productId));
+            var result = _productDal.Get(p => p.ProductId == productId);
+
+            if (result == null)
+            {
+                return new SuccessDataResult<Product>(Messages.DataEmpty);
+            }
+            return new SuccessDataResult<Product>(result, Messages.DataListed);
         }
 
-        public IDataResult<List<ProductDetailDto>> GetProductDetails()
+        public IDataResult<Product> GetLiveProductById(int productId)
         {
-            return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
+            var result = _productDal.Get(
+                p => p.ProductId == productId &&
+                     p.CategoryId != null &&
+                     p.StockQuantity > p.Category.MinStockQuantity
+            );
+
+            if (result == null)
+            {
+                return new SuccessDataResult<Product>(Messages.DataEmpty);
+            }
+
+            return new SuccessDataResult<Product>(result, Messages.DataListed);
         }
 
+        public IDataResult<List<ProductDetailDto>> GetLiveProducts(string? keyWord, int minStockVal = 0, int maxStockVal = 0)
+        {
+
+            var result = _productDal.GetLiveProducts(keyWord, minStockVal, maxStockVal);
+            return new SuccessDataResult<List<ProductDetailDto>>(result);
+        }
+
+
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Update(Product product)
         {
-            _productDal.Update(product);
-            return new Result(true, Messages.Updated);
+            try
+            {
+
+                _productDal.Update(product);
+                return new Result(true, Messages.Updated);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult(ex.Message);
+            }
         }
     }
 }

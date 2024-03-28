@@ -16,7 +16,7 @@ namespace ConsoleUI
             deneme.ProductTitle = "";
             deneme.StockQuantity = 1;
             deneme.Description = "Deneme";
-            deneme.Category.CategoryId = 1;
+            deneme.CategoryId = 1;
 
             ProductManager productManager = new ProductManager(new EFProductDal());
             productManager.Add(deneme);

@@ -11,7 +11,6 @@ namespace DataAccess.Abstract
 {
     public interface IProductDal : IEntityRepository<Product>
     {
-        List<ProductDetailDto> GetProductDetails();
-
+        List<ProductDetailDto> GetLiveProducts(string? keyWord, int minStockVal = 0, int maxStockVal = 0);
     }
 }

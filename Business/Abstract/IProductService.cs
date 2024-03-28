@@ -12,9 +12,9 @@ namespace Business.Abstract
     public interface IProductService
     {
         IDataResult<List<Product>> GetAll();
-        IDataResult<List<Product>> GetAllByCategoryID(int categoryId);
-        IDataResult<List<ProductDetailDto>> GetProductDetails();
+        IDataResult<List<ProductDetailDto>> GetLiveProducts(string? keyWord, int minStockVal = 0, int maxStockVal = 0);
         IDataResult<Product> GetById(int productId);
+        IDataResult<Product> GetLiveProductById(int productId);
         IResult Add(Product product);
         IResult Update(Product product);
         IResult Delete(Product product);

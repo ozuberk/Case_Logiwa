@@ -24,20 +24,20 @@ namespace WebAPI.Controllers
             }
             return BadRequest(result);
         }
-        [HttpGet("getallbycategoryid")]
-        public IActionResult GetAllByCategoryId(int categoryId)
+        [HttpGet("getliveproductbyid")]
+        public IActionResult GetLiveProductById(int productId)
         {
-            var result = _productService.GetAllByCategoryID(categoryId);
+            var result = _productService.GetLiveProductById(productId);
             if (result.Success)
             {
                 return Ok(result);
             }
             return BadRequest(result);
         }
-        [HttpGet("getproductdetaildto")]
-        public IActionResult GetProductDetail()
+        [HttpGet("getliveproducts")]
+        public IActionResult GetLiveProducts(string? keyWord, int minStockVal = 0, int maxStockVal = 0)
         {
-            var result = _productService.GetProductDetails();
+            var result = _productService.GetLiveProducts(keyWord, minStockVal, maxStockVal);
             if (result.Success)
             {
                 return Ok(result);
